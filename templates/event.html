@@ -1,10 +1,14 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}{{event.title}}{% endblock %}
 {% block head %}
     {{ super() }}
-    <style type="text/css">
-        .important { color: #336699; }
-    </style>
+    <script>
+      function confirmAction(event) {
+        if (!confirm("Are you sure?")) {
+          event.preventDefault();
+        }
+      }
+    </script>
 {% endblock %}
 {% block content %}
   <div class="container">
@@ -13,7 +17,35 @@
     <div class="mb-4">{{event.subtitle}}</div>
     {% endif %}
 
-    <img src="{{event.thumb_url}}" class="img-fluid" alt="{{event.title}}">
+    <div class="d-flex gap-5 mb-5 space-between">
+      <div class="">
+        <img src="{{event.thumb_url}}" class="img-fluid" alt="{{event.title}}">
+      </div>
+
+      <div>
+        <div class="mb-4">
+          <b>Transcript</b><br>
+          Status: Automatic transcription…
+          <div class="mt-2">
+            <form method="post" action="/events/{{event.guid}}/finish_transcript">
+              <a href="" class="btn btn-primary">Edit in transcribee</a>
+              <button onClick="confirmAction(event)" class="btn btn-secondary">Finish transcript</button>
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <b>Subtitles</b><br>
+          Status: {{state.subtitles_finished}}
+          <div class="mt-2">
+            <form method="post" action="/events/{{event.guid}}/finish_subtitles">
+              <a href="" class="btn btn-primary">Edit in Amara</a>
+              <button onClick="confirmAction(event)" class="btn btn-secondary" {% if state.subtitles_finished %}disabled{% endif %}>Mark as ready</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
@@ -25,7 +57,7 @@
     </ul>
 
     <div class="tab-content" id="myTabContent">
-      <div class="tab-pane fade show active" id="properties-tab-pane" role="tabpanel" aria-labelledby="properties-tab" tabindex="0">
+      <div class="tab-pane show active" id="properties-tab-pane" role="tabpanel" aria-labelledby="properties-tab" tabindex="0">
         <table class="table">
           <tbody>
             <tr>
@@ -60,8 +92,12 @@
         </table>
       </div>
 
-      <div class="tab-pane fade" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab" tabindex="0">
-        {{event.description|safe}}
+      <div class="tab-pane" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab" tabindex="0">
+        <div class="mt-4">
+          {% for paragraph in event.description.split("\n\n") %}
+            <p>{{paragraph|replace("\n","<br>")|safe}}</p>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>

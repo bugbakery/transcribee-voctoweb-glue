@@ -4,7 +4,11 @@
     {% block head %}
     <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="/static/style.css" />
-    <title>{% block title %}{% endblock %} - My Webpage</title>
+    {% if self.title() %}
+    <title>{% block title %}{% endblock %} - 37C3 subtitles</title>
+    {% else %}
+    <title>37C3 subtitles</title>
+    {% endif %}
     {% endblock %}
 </head>
 <body>
