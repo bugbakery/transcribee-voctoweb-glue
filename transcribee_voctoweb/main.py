@@ -1,5 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
+import datetime
 import logging
 from pathlib import Path
 
@@ -35,7 +36,12 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+def format_seconds(value):
+    duration = datetime.timedelta(seconds=value)
+    return str(duration)
+
 templates = Jinja2Templates(directory="templates")
+templates.env.filters["format_seconds"] = format_seconds
 
 def update_conference():
     logging.debug("Updating conference...")
