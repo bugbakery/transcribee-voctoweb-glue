@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <h2>{{event.title}}</h2>
+    {% if event.subtitle %}
+    <div class="mb-4">{{event.subtitle}}</div>
+    {% endif %}
+
+    <img src="{{event.thumb_url}}" class="img-fluid" alt="{{event.title}}">
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties-tab-pane" type="button" role="tab" aria-controls="properties-tab-pane" aria-selected="true">Properties</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-tab-pane" type="button" role="tab" aria-controls="description-tab-pane" aria-selected="false">Description</button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="properties-tab-pane" role="tabpanel" aria-labelledby="properties-tab" tabindex="0">
+        <table class="table">
+          <tbody>
+            <tr>
+              <th scope="row">Language</th>
+              <td>{{event.original_language}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Duration</th>
+              <td>{{event.duration}}</td>
+            </tr>
+            <tr>
+              <th scope="row">Speakers</th>
+              <td>{{event.persons|join(", ") }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Date</th>
+              <td>{{event.date}}</td>
+            </tr>
+            <tr>
+              <th scope="row">API URL</th>
+              <td><a href="{{event.url}}">{{event.url}}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Link</th>
+              <td><a href="{{event.link}}">{{event.link}}</a></td>
+            </tr>
+            <tr>
+              <th scope="row">Media Link</th>
+              <td><a href="{{event.frontend_link}}">{{event.frontend_link}}</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="tab-pane fade" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab" tabindex="0">
+        {{event.description|safe}}
+      </div>
+    </div>
+  </div>
+{% endblock %}

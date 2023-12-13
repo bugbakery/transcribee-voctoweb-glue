@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block content %}
+  <div class="container">
+    <h2>Talks</h2>
+    <ul class="list-group">
+    {% for event in events %}
+      <li class="list-group-item d-flex align-items-center">
+        <div class="flex-grow-1">
+          <a href="/events/{{event.guid}}">{{ event.title }}</a>
+        </div>
+        <div>
+          <button class="btn btn-secondary">transcript</button>
+          <button class="btn btn-secondary">Finish transcript</button>
+        </div>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
