@@ -24,6 +24,11 @@ async def lifespan(app: FastAPI):
     data_path = Path("data.json")
     persistent_data = PersistentData.load_json(data_path)
 
+    def continous_save():
+        persistent_data.save_json(data_path, only_if_changed=True)
+
+    asyncio.create_task(run_periodic(continous_save, seconds=1))
+
     update_conference()
     asyncio.create_task(run_periodic(update_conference, seconds=15))
 

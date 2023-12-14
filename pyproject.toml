@@ -31,8 +31,8 @@ dev = [
 ]
 
 [tool.pdm.scripts]
-start = "uvicorn transcribee_voctoweb.main:app"
-dev = "uvicorn transcribee_voctoweb.main:app --port 8001 --reload"
+start = "uvicorn transcribee_voctoweb.main:app --workers 1"
+dev = "uvicorn transcribee_voctoweb.main:app --workers 1 --port 8001 --reload"
 test = "pytest tests/"
 
 [build-system]

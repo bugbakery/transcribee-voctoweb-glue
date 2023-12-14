@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Union
 
 from pydantic import BaseModel
 
@@ -14,6 +15,7 @@ class EventState(BaseModel):
 
 class PersistentData(BaseModel):
     event_states: dict[str, EventState] = {}
+    _last_saved: Union['PersistentData', None] = None
 
     @staticmethod
     def load_json(state_path: Path):
@@ -25,6 +27,12 @@ class PersistentData(BaseModel):
 
         return PersistentData(**loaded)
 
-    def save_json(self, state_path: Path):
+    def save_json(self, state_path: Path, only_if_changed = False):
+        if only_if_changed and self._last_saved and self._last_saved.model_dump() == self.model_dump():
+            return
+
         with open(state_path, "w") as file:
-            file.write(self.model_dump_json(indent=2))
+            copy = self.model_copy(deep=True)
+            json_str = copy.model_dump_json(indent=2, exclude_unset=True)
+            file.write(json_str)
+            self._last_saved = copy
