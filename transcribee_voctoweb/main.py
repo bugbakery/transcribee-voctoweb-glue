@@ -51,7 +51,10 @@ templates.env.filters["format_seconds"] = format_seconds
 def update_conference():
     logging.debug("Updating conference...")
     global conference
-    conference = requests.get("https://api.media.ccc.de/public/conferences/35c3").json()
+    new_conference = requests.get(f"https://api.media.ccc.de/public/conferences/{settings.conference}").json()
+    new_conference["events"] = sorted(new_conference["events"], key=lambda event: event["date"])
+    new_conference["events"] = new_conference["events"][:settings.limit_events]
+    conference = new_conference
     global events
     events = conference["events"]
 
