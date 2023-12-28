@@ -46,8 +46,8 @@ class TranscribeeApiClient:
         data = {key: value for key, value in doc_dict.items() if key != "file"}
 
         with open(document.file, "rb") as file:
-            files=[
-                ('file', ('video.mp4', file, 'video/mp4')),
+            files = [
+                ("file", ("video.mp4", file, "video/mp4")),
             ]
 
             for key, value in data.items():

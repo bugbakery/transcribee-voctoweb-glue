@@ -74,7 +74,9 @@ async def update_conference():
     new_conference["events"] = sorted(
         new_conference["events"], key=lambda event: event["date"]
     )
-    new_conference["events"] = new_conference["events"][: settings.limit_events]
+    if settings.limit_events is not None:
+        new_conference["events"] = new_conference["events"][: settings.limit_events]
+
     conference = new_conference
     global events
     events = conference["events"]
@@ -112,14 +114,15 @@ async def update_conference():
                 )
 
                 doc = await asyncio.get_running_loop().run_in_executor(
-                    None, transcribee_api.create_document,
+                    None,
+                    transcribee_api.create_document,
                     DocumentBodyWithFile(
                         name=event["title"],
                         file=FilePath(video_file),
                         model="large-v3",
                         language="auto",
                         number_of_speakers=None,
-                    )
+                    ),
                 )
 
                 persistent_data.event_states[guid].transcribee_doc = doc.id
@@ -128,17 +131,19 @@ async def update_conference():
             finally:
                 os.remove(video_file)
 
+
 def download_file(url, local_path):
     # NOTE the stream=True parameter below
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
-        with open(local_path, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192): 
+        with open(local_path, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
                 # If you have chunk encoded response uncomment if
                 # and set chunk_size parameter to None.
-                #if chunk: 
+                # if chunk:
                 f.write(chunk)
     return local_path
+
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
