@@ -16,6 +16,7 @@ dependencies = [
     "jinja2>=3.1.2",
     "requests>=2.31.0",
     "pydantic>=2.5.2",
+    "datamodel-code-generator>=0.25.2",
 ]
 requires-python = ">=3.10"
 readme = "./README.md"
@@ -34,6 +35,8 @@ dev = [
 start = "uvicorn transcribee_voctoweb.main:app --workers 1"
 dev = "uvicorn transcribee_voctoweb.main:app --workers 1 --port 8001 --reload"
 test = "pytest tests/"
+transcribee_openapi = "datamodel-codegen  --input transcribee-openapi.json --input-file-type openapi --output transcribee_voctoweb/transcribee-api/model.py"
+format = "black transcribee_voctoweb/"
 
 [build-system]
 requires = ["pdm-pep517>=1.0"]

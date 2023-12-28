@@ -15,7 +15,7 @@ class EventState(BaseModel):
 
 class PersistentData(BaseModel):
     event_states: dict[str, EventState] = {}
-    _last_saved: Union['PersistentData', None] = None
+    _last_saved: Union["PersistentData", None] = None
 
     @staticmethod
     def load_json(state_path: Path):
@@ -27,8 +27,12 @@ class PersistentData(BaseModel):
 
         return PersistentData(**loaded)
 
-    def save_json(self, state_path: Path, only_if_changed = False):
-        if only_if_changed and self._last_saved and self._last_saved.model_dump() == self.model_dump():
+    def save_json(self, state_path: Path, only_if_changed=False):
+        if (
+            only_if_changed
+            and self._last_saved
+            and self._last_saved.model_dump() == self.model_dump()
+        ):
             return
 
         with open(state_path, "w") as file:
