@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 class EventState(BaseModel):
     transcribee_doc: str | None = None
+    transcribee_share_token: str | None = None
     transcription_finished: bool = False
 
     amara_doc: str | None = None
@@ -37,6 +38,6 @@ class PersistentData(BaseModel):
 
         with open(state_path, "w") as file:
             copy = self.model_copy(deep=True)
-            json_str = copy.model_dump_json(indent=2, exclude_unset=True)
+            json_str = copy.model_dump_json(indent=2)
             file.write(json_str)
             self._last_saved = copy

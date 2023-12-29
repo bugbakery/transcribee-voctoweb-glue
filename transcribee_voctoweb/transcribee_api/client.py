@@ -2,7 +2,9 @@ from pydantic.types import FilePath
 import requests
 from transcribee_voctoweb.transcribee_api.model import (
     BodyCreateDocumentApiV1DocumentsPost,
+    CreateShareToken,
     Document,
+    DocumentShareTokenBase,
 )
 
 
@@ -55,3 +57,8 @@ class TranscribeeApiClient:
 
             req = self.post("/api/v1/documents/", files=tuple(files))
             return Document.model_validate_json(req.text)
+
+    def create_share_token(self, doc_id: str, data: CreateShareToken):
+        data_dict = data.model_dump()
+        req = self.post(f"/api/v1/documents/{doc_id}/share_tokens/", json=data_dict)
+        return DocumentShareTokenBase.model_validate_json(req.text)

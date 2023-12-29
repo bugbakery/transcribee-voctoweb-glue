@@ -22,6 +22,8 @@ from transcribee_voctoweb.transcribee_api.client import (
     DocumentBodyWithFile,
     TranscribeeApiClient,
 )
+from transcribee_voctoweb.transcribee_api.model import CreateShareToken
+import urllib.parse
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -81,9 +83,13 @@ async def update_conference():
     global events
     events = conference["events"]
 
+
+    global persistent_data
+
     for event in events:
         guid = event["guid"]
         if guid not in persistent_data.event_states:
+            print(f"Adding event {guid}")
             persistent_data.event_states[guid] = EventState()
 
         if not persistent_data.event_states[guid].transcribee_doc:
@@ -126,6 +132,21 @@ async def update_conference():
                 )
 
                 persistent_data.event_states[guid].transcribee_doc = doc.id
+
+                share_token = await asyncio.get_running_loop().run_in_executor(
+                    None,
+                    transcribee_api.create_share_token,
+                    doc.id,
+                    CreateShareToken(
+                        name="voctoweb-glue",
+                        can_write=True,
+                        valid_until=None,
+                    ),
+                )
+
+                print(share_token)
+
+                persistent_data.event_states[guid].transcribee_share_token = share_token.token
             except Exception:
                 traceback.print_exc()
             finally:
@@ -155,12 +176,21 @@ async def home(request: Request):
 @app.get("/events/{id}", response_class=HTMLResponse)
 async def event(request: Request, id: str):
     event = next((event for event in events if event["guid"] == id), None)
+
+    transcribee_url = None
+    state = persistent_data.event_states.get(id)
+
+    if state and state.transcribee_share_token:
+        encoded_token = urllib.parse.quote_plus(state.transcribee_share_token)
+        transcribee_url = f"{settings.transcribee_api_url}/document/{state.transcribee_doc}?share_token={encoded_token}"
+
     return templates.TemplateResponse(
         "event.html",
         {
             "request": request,
             "event": event,
             "state": persistent_data.event_states.get(id, {}),
+            "transcribee_url": transcribee_url,
         },
     )
 

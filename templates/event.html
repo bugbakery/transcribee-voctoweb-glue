@@ -28,19 +28,8 @@
           Status: Automatic transcription…
           <div class="mt-2">
             <form method="post" action="/events/{{event.guid}}/finish_transcript">
-              <a href="" class="btn btn-primary">Edit in transcribee</a>
+              <a href="{{transcribee_url}}" class="btn btn-primary">Edit in transcribee</a>
               <button onClick="confirmAction(event)" class="btn btn-secondary">Finish transcript</button>
-            </form>
-          </div>
-        </div>
-
-        <div>
-          <b>Subtitles</b><br>
-          Status: {{state.subtitles_finished}}
-          <div class="mt-2">
-            <form method="post" action="/events/{{event.guid}}/finish_subtitles">
-              <a href="" class="btn btn-primary">Edit in Amara</a>
-              <button onClick="confirmAction(event)" class="btn btn-secondary" {% if state.subtitles_finished %}disabled{% endif %}>Mark as ready</button>
             </form>
           </div>
         </div>
