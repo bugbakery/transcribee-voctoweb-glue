@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic.types import FilePath
 import requests
 from transcribee_voctoweb.transcribee_api.model import (
@@ -48,7 +49,8 @@ class TranscribeeApiClient:
         data = {key: value for key, value in doc_dict.items() if key != "file"}
 
         with open(document.file, "rb") as file:
-            files = [
+            file_entry_type = tuple[str, tuple[str | None, Any] | tuple[str | None, Any, str]]
+            files: list[file_entry_type] = [
                 ("file", ("video.mp4", file, "video/mp4")),
             ]
 
