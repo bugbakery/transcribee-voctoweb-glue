@@ -1,7 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
 import datetime
-import io
 import logging
 import os
 from pathlib import Path
@@ -16,6 +15,7 @@ from fastapi.templating import Jinja2Templates
 import requests
 from starlette.responses import RedirectResponse
 
+from transcribee_voctoweb.subtitle_formtting import format_subtitle_vtt
 from transcribee_voctoweb.config import settings
 from transcribee_voctoweb.helpers.periodic_tasks import run_periodic
 from transcribee_voctoweb.persistent_data import EventState, PersistentData
@@ -25,8 +25,6 @@ from transcribee_voctoweb.transcribee_api.client import (
 )
 from transcribee_voctoweb.transcribee_api.model import CreateShareToken, TaskResponse, TaskState, TaskTypeModel
 import urllib.parse
-
-import webvtt
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -253,43 +251,6 @@ async def finish_subtitles(request: Request, id: str):
 
     return RedirectResponse(f"/events/{id}", status_code=303)
 
-async def generate_optimized_vtt(transcribee_doc: str):
-    vtt = await transcribee_api.export(transcribee_doc, format="VTT", include_word_timing=True)
-
-    captions = []
-    current_caption: webvtt.Caption | None = None
-    for caption in webvtt.read_buffer(io.StringIO(vtt)):
-        if current_caption is None:
-            current_caption = caption
-            continue
-
-        if len(current_caption.text) + len(caption.text) < 100:
-            current_caption = merge_captions(current_caption, caption)
-        else:
-            line = ""
-            lines = []
-            for word in current_caption.text.split(" "):
-                if len(line) + len(word) > 60 and line != "":
-                    lines.append(line)
-                    line = word
-                else:
-                    line += " " + word
-
-            lines.append(line)
-
-            captions.append(webvtt.Caption(
-                start=current_caption.start,
-                end=current_caption.end,
-                text="\n".join(lines).strip(),
-            ))
-
-            current_caption = caption
-
-    output_stream = io.StringIO()
-    processed_vtt = webvtt.WebVTT(captions = captions)
-    processed_vtt.write(output_stream, format="vtt")
-
-    return output_stream.getvalue()
 
 @app.get("/events/{id}/vtt", response_class=HTMLResponse)
 async def vtt(request: Request, id: str):
@@ -298,11 +259,5 @@ async def vtt(request: Request, id: str):
     if state is None or state.transcribee_doc is None:
         raise HTTPException(status_code=404, detail="No transcribee document created yet")
 
-    return await generate_optimized_vtt(state.transcribee_doc)
-
-def merge_captions(cap1: webvtt.Caption, cap2: webvtt.Caption): 
-    return webvtt.Caption(
-        start=min(cap1.start, cap2.start),
-        end=max(cap1.end, cap2.end),
-        text=cap1.raw_text + cap2.raw_text,
-    )
+    vtt = await transcribee_api.export(state.transcribee_doc, format="VTT", include_word_timing=True)
+    return format_subtitle_vtt(vtt)
