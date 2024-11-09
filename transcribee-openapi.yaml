@@ -1,0 +1,1826 @@
+components:
+  schemas:
+    AlignTask:
+      properties:
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        task_parameters:
+          title: Task Parameters
+          type: object
+        task_type:
+          default: ALIGN
+          enum:
+          - ALIGN
+          title: Task Type
+          type: string
+      required:
+      - task_parameters
+      - document_id
+      title: AlignTask
+      type: object
+    ApiDocumentWithTasks:
+      properties:
+        changed_at:
+          title: Changed At
+          type: string
+        created_at:
+          title: Created At
+          type: string
+        id:
+          title: Id
+          type: string
+        media_files:
+          items:
+            $ref: '#/components/schemas/DocumentMedia'
+          title: Media Files
+          type: array
+        name:
+          title: Name
+          type: string
+        tasks:
+          items:
+            $ref: '#/components/schemas/TaskResponse'
+          title: Tasks
+          type: array
+      required:
+      - id
+      - name
+      - created_at
+      - changed_at
+      - media_files
+      - tasks
+      title: ApiDocumentWithTasks
+      type: object
+    AssignedTaskResponse:
+      properties:
+        current_attempt:
+          $ref: '#/components/schemas/TaskAttemptResponse'
+        dependencies:
+          items:
+            format: uuid
+            type: string
+          title: Dependencies
+          type: array
+        document:
+          $ref: '#/components/schemas/Document'
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        state:
+          $ref: '#/components/schemas/TaskState'
+        task_parameters:
+          title: Task Parameters
+          type: object
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+      required:
+      - task_type
+      - task_parameters
+      - document_id
+      - id
+      - state
+      - dependencies
+      - document
+      title: AssignedTaskResponse
+      type: object
+    Body_add_media_file_api_v1_documents__document_id__add_media_file__post:
+      properties:
+        file:
+          format: binary
+          title: File
+          type: string
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+      - tags
+      - file
+      title: Body_add_media_file_api_v1_documents__document_id__add_media_file__post
+      type: object
+    Body_create_document_api_v1_documents__post:
+      properties:
+        file:
+          format: binary
+          title: File
+          type: string
+        language:
+          title: Language
+          type: string
+        model:
+          title: Model
+          type: string
+        name:
+          title: Name
+          type: string
+        number_of_speakers:
+          title: Number Of Speakers
+          type: integer
+      required:
+      - name
+      - model
+      - language
+      - file
+      title: Body_create_document_api_v1_documents__post
+      type: object
+    Body_import_document_api_v1_documents_import__post:
+      properties:
+        media_file:
+          format: binary
+          title: Media File
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - media_file
+      - name
+      title: Body_import_document_api_v1_documents_import__post
+      type: object
+    ChangePasswordRequest:
+      properties:
+        new_password:
+          minLength: 6
+          title: New Password
+          type: string
+        old_password:
+          title: Old Password
+          type: string
+      required:
+      - old_password
+      - new_password
+      title: ChangePasswordRequest
+      type: object
+    CreateShareToken:
+      properties:
+        can_write:
+          title: Can Write
+          type: boolean
+        name:
+          title: Name
+          type: string
+        valid_until:
+          format: date-time
+          title: Valid Until
+          type: string
+      required:
+      - name
+      - can_write
+      title: CreateShareToken
+      type: object
+    CreateUser:
+      properties:
+        password:
+          title: Password
+          type: string
+        username:
+          title: Username
+          type: string
+      required:
+      - username
+      - password
+      title: CreateUser
+      type: object
+    CreateWorker:
+      properties:
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: CreateWorker
+      type: object
+    DeactivateWorker:
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+      required:
+      - id
+      title: DeactivateWorker
+      type: object
+    Document:
+      properties:
+        changed_at:
+          title: Changed At
+          type: string
+        created_at:
+          title: Created At
+          type: string
+        id:
+          title: Id
+          type: string
+        media_files:
+          items:
+            $ref: '#/components/schemas/DocumentMedia'
+          title: Media Files
+          type: array
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      - created_at
+      - changed_at
+      - media_files
+      title: Document
+      type: object
+    DocumentMedia:
+      properties:
+        content_type:
+          title: Content Type
+          type: string
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+        url:
+          title: Url
+          type: string
+      required:
+      - url
+      - content_type
+      - tags
+      title: DocumentMedia
+      type: object
+    DocumentShareTokenBase:
+      properties:
+        can_write:
+          title: Can Write
+          type: boolean
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        token:
+          title: Token
+          type: string
+        valid_until:
+          format: date-time
+          title: Valid Until
+          type: string
+      required:
+      - id
+      - name
+      - document_id
+      - token
+      - can_write
+      title: DocumentShareTokenBase
+      type: object
+    DocumentUpdateRequest:
+      properties:
+        name:
+          title: Name
+          type: string
+      title: DocumentUpdateRequest
+      type: object
+    DocumentWithAccessInfo:
+      properties:
+        can_write:
+          title: Can Write
+          type: boolean
+        changed_at:
+          title: Changed At
+          type: string
+        created_at:
+          title: Created At
+          type: string
+        has_full_access:
+          title: Has Full Access
+          type: boolean
+        id:
+          title: Id
+          type: string
+        media_files:
+          items:
+            $ref: '#/components/schemas/DocumentMedia'
+          title: Media Files
+          type: array
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      - created_at
+      - changed_at
+      - media_files
+      - can_write
+      - has_full_access
+      title: DocumentWithAccessInfo
+      type: object
+    ExportError:
+      properties:
+        error:
+          title: Error
+          type: string
+      required:
+      - error
+      title: ExportError
+      type: object
+    ExportFormat:
+      description: An enumeration.
+      enum:
+      - VTT
+      - SRT
+      title: ExportFormat
+      type: string
+    ExportResult:
+      properties:
+        result:
+          title: Result
+          type: string
+      required:
+      - result
+      title: ExportResult
+      type: object
+    ExportTask:
+      properties:
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        task_parameters:
+          $ref: '#/components/schemas/ExportTaskParameters'
+        task_type:
+          default: EXPORT
+          enum:
+          - EXPORT
+          title: Task Type
+          type: string
+      required:
+      - task_parameters
+      - document_id
+      title: ExportTask
+      type: object
+    ExportTaskParameters:
+      properties:
+        format:
+          $ref: '#/components/schemas/ExportFormat'
+        include_speaker_names:
+          title: Include Speaker Names
+          type: boolean
+        include_word_timing:
+          title: Include Word Timing
+          type: boolean
+        max_line_length:
+          title: Max Line Length
+          type: integer
+      required:
+      - format
+      - include_speaker_names
+      - include_word_timing
+      title: ExportTaskParameters
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    KeepaliveBody:
+      properties:
+        progress:
+          title: Progress
+          type: number
+      title: KeepaliveBody
+      type: object
+    LoginResponse:
+      properties:
+        token:
+          title: Token
+          type: string
+      required:
+      - token
+      title: LoginResponse
+      type: object
+    ModelConfig:
+      properties:
+        id:
+          title: Id
+          type: string
+        languages:
+          items:
+            type: string
+          title: Languages
+          type: array
+        name:
+          title: Name
+          type: string
+      required:
+      - id
+      - name
+      - languages
+      title: ModelConfig
+      type: object
+    PageConfig:
+      properties:
+        footer_position:
+          title: Footer Position
+          type: integer
+        name:
+          title: Name
+          type: string
+        text:
+          title: Text
+          type: string
+      required:
+      - name
+      - text
+      title: PageConfig
+      type: object
+    PublicConfig:
+      properties:
+        logged_out_redirect_url:
+          title: Logged Out Redirect Url
+          type: string
+        models:
+          additionalProperties:
+            $ref: '#/components/schemas/ModelConfig'
+          title: Models
+          type: object
+      required:
+      - models
+      title: PublicConfig
+      type: object
+    SetDurationRequest:
+      properties:
+        duration:
+          title: Duration
+          type: number
+      required:
+      - duration
+      title: SetDurationRequest
+      type: object
+    ShortPageConfig:
+      properties:
+        footer_position:
+          title: Footer Position
+          type: integer
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: ShortPageConfig
+      type: object
+    SpeakerIdentificationTask:
+      properties:
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        task_parameters:
+          title: Task Parameters
+          type: object
+        task_type:
+          default: IDENTIFY_SPEAKERS
+          enum:
+          - IDENTIFY_SPEAKERS
+          title: Task Type
+          type: string
+      required:
+      - task_parameters
+      - document_id
+      title: SpeakerIdentificationTask
+      type: object
+    TaskAttemptResponse:
+      properties:
+        progress:
+          title: Progress
+          type: number
+      title: TaskAttemptResponse
+      type: object
+    TaskQueueInfoResponse:
+      properties:
+        open_tasks:
+          items:
+            $ref: '#/components/schemas/TaskQueueInfoTaskEntry'
+          title: Open Tasks
+          type: array
+      required:
+      - open_tasks
+      title: TaskQueueInfoResponse
+      type: object
+    TaskQueueInfoTaskEntry:
+      properties:
+        id:
+          format: uuid
+          title: Id
+          type: string
+        remaining_cost:
+          title: Remaining Cost
+          type: number
+        state:
+          $ref: '#/components/schemas/TaskState'
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+      required:
+      - id
+      - task_type
+      - state
+      - remaining_cost
+      title: TaskQueueInfoTaskEntry
+      type: object
+    TaskResponse:
+      properties:
+        current_attempt:
+          $ref: '#/components/schemas/TaskAttemptResponse'
+        dependencies:
+          items:
+            format: uuid
+            type: string
+          title: Dependencies
+          type: array
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        state:
+          $ref: '#/components/schemas/TaskState'
+        task_parameters:
+          title: Task Parameters
+          type: object
+        task_type:
+          $ref: '#/components/schemas/TaskType'
+      required:
+      - task_type
+      - task_parameters
+      - document_id
+      - id
+      - state
+      - dependencies
+      title: TaskResponse
+      type: object
+    TaskState:
+      description: An enumeration.
+      enum:
+      - NEW
+      - ASSIGNED
+      - COMPLETED
+      - FAILED
+      title: TaskState
+    TaskType:
+      description: An enumeration.
+      enum:
+      - IDENTIFY_SPEAKERS
+      - TRANSCRIBE
+      - ALIGN
+      - REENCODE
+      - EXPORT
+      title: TaskType
+      type: string
+    TranscribeTask:
+      properties:
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        task_parameters:
+          $ref: '#/components/schemas/TranscribeTaskParameters'
+        task_type:
+          default: TRANSCRIBE
+          enum:
+          - TRANSCRIBE
+          title: Task Type
+          type: string
+      required:
+      - task_parameters
+      - document_id
+      title: TranscribeTask
+      type: object
+    TranscribeTaskParameters:
+      properties:
+        lang:
+          title: Lang
+          type: string
+        model:
+          title: Model
+          type: string
+      required:
+      - lang
+      - model
+      title: TranscribeTaskParameters
+      type: object
+    UnknownTask:
+      properties:
+        document_id:
+          format: uuid
+          title: Document Id
+          type: string
+        task_parameters:
+          title: Task Parameters
+          type: object
+        task_type:
+          title: Task Type
+          type: string
+      required:
+      - task_type
+      - task_parameters
+      - document_id
+      title: UnknownTask
+      type: object
+    UserBase:
+      properties:
+        username:
+          title: Username
+          type: string
+      required:
+      - username
+      title: UserBase
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    Worker:
+      properties:
+        deactivated_at:
+          format: date-time
+          title: Deactivated At
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        last_seen:
+          format: date-time
+          title: Last Seen
+          type: string
+        name:
+          title: Name
+          type: string
+        token:
+          title: Token
+          type: string
+      required:
+      - name
+      - token
+      title: Worker
+      type: object
+    WorkerWithId:
+      properties:
+        deactivated_at:
+          format: date-time
+          title: Deactivated At
+          type: string
+        id:
+          format: uuid
+          title: Id
+          type: string
+        last_seen:
+          format: date-time
+          title: Last Seen
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+      - name
+      title: WorkerWithId
+      type: object
+  securitySchemes:
+    HTTPBasic:
+      scheme: basic
+      type: http
+info:
+  title: FastAPI
+  version: 0.1.0
+openapi: 3.1.0
+paths:
+  /:
+    get:
+      operationId: root__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Root
+  /api/v1/config/:
+    get:
+      operationId: get_config_api_v1_config__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicConfig'
+          description: Successful Response
+      summary: Get Config
+  /api/v1/documents/:
+    get:
+      operationId: list_documents_api_v1_documents__get
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ApiDocumentWithTasks'
+                title: Response List Documents Api V1 Documents  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Documents
+    post:
+      operationId: create_document_api_v1_documents__post
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_create_document_api_v1_documents__post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Document
+  /api/v1/documents/import/:
+    post:
+      operationId: import_document_api_v1_documents_import__post
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_import_document_api_v1_documents_import__post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Import Document
+  /api/v1/documents/{document_id}/:
+    delete:
+      operationId: delete_document_api_v1_documents__document_id___delete
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Document
+    get:
+      operationId: get_document_api_v1_documents__document_id___get
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentWithAccessInfo'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Document
+    patch:
+      operationId: update_document_api_v1_documents__document_id___patch
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUpdateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Update Document
+  /api/v1/documents/{document_id}/add_export_result/:
+    post:
+      operationId: add_export_result_api_v1_documents__document_id__add_export_result__post
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: query
+        name: task_id
+        required: true
+        schema:
+          title: Task Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/ExportResult'
+              - $ref: '#/components/schemas/ExportError'
+              title: Result
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Add Export Result
+  /api/v1/documents/{document_id}/add_media_file/:
+    post:
+      operationId: add_media_file_api_v1_documents__document_id__add_media_file__post
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_add_media_file_api_v1_documents__document_id__add_media_file__post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Add Media File
+  /api/v1/documents/{document_id}/export/:
+    get:
+      operationId: export_api_v1_documents__document_id__export__get
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: query
+        name: format
+        required: true
+        schema:
+          $ref: '#/components/schemas/ExportFormat'
+      - in: query
+        name: include_speaker_names
+        required: true
+        schema:
+          title: Include Speaker Names
+          type: boolean
+      - in: query
+        name: include_word_timing
+        required: true
+        schema:
+          title: Include Word Timing
+          type: boolean
+      - in: query
+        name: max_line_length
+        required: false
+        schema:
+          title: Max Line Length
+          type: integer
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      responses:
+        '200':
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Export
+  /api/v1/documents/{document_id}/set_duration/:
+    post:
+      operationId: set_duration_api_v1_documents__document_id__set_duration__post
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetDurationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Set Duration
+  /api/v1/documents/{document_id}/share_tokens/:
+    get:
+      operationId: list_share_tokens_api_v1_documents__document_id__share_tokens__get
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/DocumentShareTokenBase'
+                title: Response List Share Tokens Api V1 Documents  Document Id  Share
+                  Tokens  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Share Tokens
+    post:
+      operationId: share_api_v1_documents__document_id__share_tokens__post
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShareToken'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentShareTokenBase'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Share
+  /api/v1/documents/{document_id}/share_tokens/{token_id}/:
+    delete:
+      operationId: delete_share_tokens_api_v1_documents__document_id__share_tokens__token_id___delete
+      parameters:
+      - in: path
+        name: token_id
+        required: true
+        schema:
+          format: uuid
+          title: Token Id
+          type: string
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Share Tokens
+  /api/v1/documents/{document_id}/tasks/:
+    get:
+      operationId: get_document_tasks_api_v1_documents__document_id__tasks__get
+      parameters:
+      - in: path
+        name: document_id
+        required: true
+        schema:
+          format: uuid
+          title: Document Id
+          type: string
+      - in: header
+        name: authorization
+        required: false
+        schema:
+          title: Authorization
+          type: string
+      - in: header
+        name: Share-Token
+        required: false
+        schema:
+          title: Share-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+                title: Response Get Document Tasks Api V1 Documents  Document Id  Tasks  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Document Tasks
+  /api/v1/page/:
+    get:
+      operationId: get_pages_api_v1_page__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/ShortPageConfig'
+                title: Response Get Pages Api V1 Page  Get
+                type: object
+          description: Successful Response
+      summary: Get Pages
+  /api/v1/page/{page_id}:
+    get:
+      operationId: get_page_api_v1_page__page_id__get
+      parameters:
+      - in: path
+        name: page_id
+        required: true
+        schema:
+          title: Page Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageConfig'
+          description: Successful Response
+        '404':
+          description: Page not found
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Page
+  /api/v1/tasks/:
+    get:
+      operationId: list_tasks_api_v1_tasks__get
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TaskResponse'
+                title: Response List Tasks Api V1 Tasks  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Tasks
+    post:
+      operationId: create_task_api_v1_tasks__post
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/SpeakerIdentificationTask'
+              - $ref: '#/components/schemas/TranscribeTask'
+              - $ref: '#/components/schemas/AlignTask'
+              - $ref: '#/components/schemas/ExportTask'
+              - $ref: '#/components/schemas/UnknownTask'
+              title: Task
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Task
+  /api/v1/tasks/claim_unassigned_task/:
+    post:
+      operationId: claim_unassigned_task_api_v1_tasks_claim_unassigned_task__post
+      parameters:
+      - in: query
+        name: task_type
+        required: true
+        schema:
+          items:
+            $ref: '#/components/schemas/TaskType'
+          type: array
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignedTaskResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Claim Unassigned Task
+  /api/v1/tasks/queue_info/:
+    get:
+      operationId: queue_info_api_v1_tasks_queue_info__get
+      parameters:
+      - in: header
+        name: Api-Token
+        required: true
+        schema:
+          title: Api-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskQueueInfoResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Queue Info
+  /api/v1/tasks/{task_id}/keepalive/:
+    post:
+      operationId: keepalive_api_v1_tasks__task_id__keepalive__post
+      parameters:
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          format: uuid
+          title: Task Id
+          type: string
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeepaliveBody'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Keepalive
+  /api/v1/tasks/{task_id}/mark_completed/:
+    post:
+      operationId: mark_completed_api_v1_tasks__task_id__mark_completed__post
+      parameters:
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          format: uuid
+          title: Task Id
+          type: string
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: Extra Data
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Mark Completed
+  /api/v1/tasks/{task_id}/mark_failed/:
+    post:
+      operationId: mark_failed_api_v1_tasks__task_id__mark_failed__post
+      parameters:
+      - in: path
+        name: task_id
+        required: true
+        schema:
+          format: uuid
+          title: Task Id
+          type: string
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              title: Extra Data
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Mark Failed
+  /api/v1/users/change_password/:
+    post:
+      operationId: change_password_api_v1_users_change_password__post
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBase'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Change Password
+  /api/v1/users/create/:
+    post:
+      operationId: create_user_req_api_v1_users_create__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create User Req
+  /api/v1/users/login/:
+    post:
+      operationId: login_api_v1_users_login__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Login
+  /api/v1/users/logout/:
+    post:
+      operationId: logout_api_v1_users_logout__post
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Logout
+  /api/v1/users/me/:
+    get:
+      operationId: read_user_api_v1_users_me__get
+      parameters:
+      - in: header
+        name: authorization
+        required: true
+        schema:
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBase'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Read User
+  /api/v1/worker/:
+    get:
+      operationId: list_workers_api_v1_worker__get
+      parameters:
+      - in: header
+        name: Api-Token
+        required: true
+        schema:
+          title: Api-Token
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/WorkerWithId'
+                title: Response List Workers Api V1 Worker  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Workers
+  /api/v1/worker/create/:
+    post:
+      operationId: create_worker_endpoint_api_v1_worker_create__post
+      parameters:
+      - in: header
+        name: Api-Token
+        required: true
+        schema:
+          title: Api-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWorker'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Worker'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Worker Endpoint
+  /api/v1/worker/deactivate/:
+    post:
+      operationId: deactivate_worker_endpoint_api_v1_worker_deactivate__post
+      parameters:
+      - in: header
+        name: Api-Token
+        required: true
+        schema:
+          title: Api-Token
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeactivateWorker'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Deactivate Worker Endpoint
+  /media/{file}:
+    get:
+      operationId: serve_media_media__file__get
+      parameters:
+      - in: path
+        name: file
+        required: true
+        schema:
+          title: File
+          type: string
+      - in: query
+        name: X-Transcribee-Signature
+        required: true
+        schema:
+          title: X-Transcribee-Signature
+          type: string
+      - in: header
+        name: range
+        required: false
+        schema:
+          title: Range
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Serve Media
+  /metrics:
+    get:
+      description: Endpoint that serves Prometheus metrics.
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - HTTPBasic: []
+      summary: Metrics

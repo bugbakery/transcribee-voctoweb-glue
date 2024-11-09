@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 import datetime
+import io
 import logging
 import os
 from pathlib import Path
@@ -8,10 +9,10 @@ import tempfile
 import traceback
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic.types import FilePath
 import requests
 from starlette.responses import RedirectResponse
 
@@ -22,8 +23,10 @@ from transcribee_voctoweb.transcribee_api.client import (
     DocumentBodyWithFile,
     TranscribeeApiClient,
 )
-from transcribee_voctoweb.transcribee_api.model import CreateShareToken
+from transcribee_voctoweb.transcribee_api.model import CreateShareToken, TaskResponse, TaskState, TaskTypeModel
 import urllib.parse
+
+import webvtt
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -44,9 +47,7 @@ async def lifespan(app: FastAPI):
         persistent_data.save_json(data_path, only_if_changed=True)
 
     asyncio.create_task(run_periodic(continous_save, seconds=1))
-
-    # await update_conference()
-    asyncio.create_task(run_periodic(update_conference, seconds=500))
+    asyncio.create_task(run_periodic(update_conference, seconds=60))
 
     yield
 
@@ -66,6 +67,31 @@ def format_seconds(value):
 templates = Jinja2Templates(directory="templates")
 templates.env.filters["format_seconds"] = format_seconds
 
+def transcription_finished(tasks: list[TaskResponse]):
+    # has at leas one finished automatic transcription
+    has_completed_transcribe_task = any(
+        task.task_type == TaskTypeModel.TRANSCRIBE and task.state == TaskState.COMPLETED
+        for task in tasks
+    )
+
+    if not has_completed_transcribe_task:
+        return False
+
+    has_align_task = any(
+        task.task_type == TaskTypeModel.ALIGN
+        for task in tasks
+    )
+
+    has_finished_align_task = any(
+        task.task_type == TaskTypeModel.ALIGN and task.state == TaskState.COMPLETED
+        for task in tasks
+    )
+
+    # if there is an align task, it must be finished
+    if has_align_task and not has_finished_align_task:
+        return False
+
+    return True
 
 async def update_conference():
     logging.debug("Updating conference...")
@@ -91,6 +117,25 @@ async def update_conference():
         if guid not in persistent_data.event_states:
             print(f"Adding event {guid}")
             persistent_data.event_states[guid] = EventState()
+
+        trancribee_doc = persistent_data.event_states[guid].transcribee_doc
+        if trancribee_doc:
+            try:
+                logging.debug(f"Checking status of {trancribee_doc}")
+                tasks = await transcribee_api.get_tasks_for_document(trancribee_doc)
+
+                if transcription_finished(tasks):
+                    if not persistent_data.event_states[guid].transcription_finished:
+                        persistent_data.event_states[guid].transcription_finished = True
+                        logging.info(f"{guid} just finished automatic transcription")
+                    else:
+                        logging.debug(f"{guid} has already finished automatic transcription")
+                else:
+                    logging.debug(f"{guid} has not finished automatic transcription")
+            except Exception:
+                logging.error(f"Failed to check status of {trancribee_doc}")
+                traceback.print_exc()
+
 
         if not persistent_data.event_states[guid].transcribee_doc:
             event_details = requests.get(
@@ -119,12 +164,10 @@ async def update_conference():
                     None, download_file, mp4_recording["recording_url"], video_file
                 )
 
-                doc = await asyncio.get_running_loop().run_in_executor(
-                    None,
-                    transcribee_api.create_document,
+                doc = await transcribee_api.create_document(
                     DocumentBodyWithFile(
                         name=event["title"],
-                        file=FilePath(video_file),
+                        file=Path(video_file),
                         model="large-v3",
                         language="auto",
                         number_of_speakers=None,
@@ -133,9 +176,7 @@ async def update_conference():
 
                 persistent_data.event_states[guid].transcribee_doc = doc.id
 
-                share_token = await asyncio.get_running_loop().run_in_executor(
-                    None,
-                    transcribee_api.create_share_token,
+                share_token = await transcribee_api.create_share_token(
                     doc.id,
                     CreateShareToken(
                         name="voctoweb-glue",
@@ -143,8 +184,6 @@ async def update_conference():
                         valid_until=None,
                     ),
                 )
-
-                print(share_token)
 
                 persistent_data.event_states[guid].transcribee_share_token = share_token.token
             except Exception:
@@ -213,3 +252,57 @@ async def finish_subtitles(request: Request, id: str):
     persistent_data.event_states[id].subtitles_finished = True
 
     return RedirectResponse(f"/events/{id}", status_code=303)
+
+async def generate_optimized_vtt(transcribee_doc: str):
+    vtt = await transcribee_api.export(transcribee_doc, format="VTT", include_word_timing=True)
+
+    captions = []
+    current_caption: webvtt.Caption | None = None
+    for caption in webvtt.read_buffer(io.StringIO(vtt)):
+        if current_caption is None:
+            current_caption = caption
+            continue
+
+        if len(current_caption.text) + len(caption.text) < 100:
+            current_caption = merge_captions(current_caption, caption)
+        else:
+            line = ""
+            lines = []
+            for word in current_caption.text.split(" "):
+                if len(line) + len(word) > 60 and line != "":
+                    lines.append(line)
+                    line = word
+                else:
+                    line += " " + word
+
+            lines.append(line)
+
+            captions.append(webvtt.Caption(
+                start=current_caption.start,
+                end=current_caption.end,
+                text="\n".join(lines).strip(),
+            ))
+
+            current_caption = caption
+
+    output_stream = io.StringIO()
+    processed_vtt = webvtt.WebVTT(captions = captions)
+    processed_vtt.write(output_stream, format="vtt")
+
+    return output_stream.getvalue()
+
+@app.get("/events/{id}/vtt", response_class=HTMLResponse)
+async def vtt(request: Request, id: str):
+    state = persistent_data.event_states.get(id)
+
+    if state is None or state.transcribee_doc is None:
+        raise HTTPException(status_code=404, detail="No transcribee document created yet")
+
+    return await generate_optimized_vtt(state.transcribee_doc)
+
+def merge_captions(cap1: webvtt.Caption, cap2: webvtt.Caption): 
+    return webvtt.Caption(
+        start=min(cap1.start, cap2.start),
+        end=max(cap1.end, cap2.end),
+        text=cap1.raw_text + cap2.raw_text,
+    )
