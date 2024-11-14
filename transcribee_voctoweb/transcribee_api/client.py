@@ -29,7 +29,18 @@ class TranscribeeApiClient:
             "Authorization": f"Token {self.token}",
         }
 
-    async def post(self, url, **kwargs):
+    def _get_url(self, url):
+        return self.base_url + url
+
+    async def _get(self, url, params={}):
+        req = await self.client.get(
+            self._get_url(url), headers=self._get_headers(), params=params, timeout=120
+        )
+        req.raise_for_status()
+        return req
+
+
+    async def _post(self, url, **kwargs):
         req = await self.client.post(
             self._get_url(url),
             **kwargs,
@@ -39,18 +50,8 @@ class TranscribeeApiClient:
         req.raise_for_status()
         return req
 
-    def _get_url(self, url):
-        return self.base_url + url
-
-    async def get(self, url, params={}):
-        req = await self.client.get(
-            self._get_url(url), headers=self._get_headers(), params=params, timeout=120
-        )
-        req.raise_for_status()
-        return req
-
     async def get_tasks_for_document(self, doc_id: str) -> list[TaskResponse]:
-        req = await self.get(f"/api/v1/documents/{doc_id}/tasks/")
+        req = await self._get(f"/api/v1/documents/{doc_id}/tasks/")
         adapter = TypeAdapter(list[TaskResponse])
         return adapter.validate_json(req.text)
 
@@ -66,12 +67,12 @@ class TranscribeeApiClient:
             for key, value in data.items():
                 files.append((key, (None, value)))
 
-            req = await self.post("/api/v1/documents/", files=tuple(files))
+            req = await self._post("/api/v1/documents/", files=tuple(files))
             return Document.model_validate_json(req.text)
 
     async def create_share_token(self, doc_id: str, data: CreateShareToken):
         data_dict = data.model_dump()
-        req = await self.post(f"/api/v1/documents/{doc_id}/share_tokens/", json=data_dict)
+        req = await self._post(f"/api/v1/documents/{doc_id}/share_tokens/", json=data_dict)
         return DocumentShareTokenBase.model_validate_json(req.text)
 
     async def export(
@@ -81,7 +82,7 @@ class TranscribeeApiClient:
         include_speaker_names=False,
         include_word_timing=False,
     ):
-        req = await self.get(
+        req = await self._get(
             f"/api/v1/documents/{doc_id}/export/",
             params={
                 "format": format,

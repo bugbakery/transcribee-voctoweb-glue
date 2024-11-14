@@ -38,6 +38,7 @@ start = "uvicorn transcribee_voctoweb.main:app --workers 1"
 dev = "uvicorn transcribee_voctoweb.main:app --workers 1 --port 8001 --reload"
 test = "pytest tests/"
 transcribee_openapi = "datamodel-codegen  --input transcribee-openapi.yaml --input-file-type openapi --output transcribee_voctoweb/transcribee_api/model.py"
+# voc_openapi = "datamodel-codegen  --input transcribee-openapi.yaml --input-file-type openapi --output transcribee_voctoweb/transcribee_api/model.py"
 format = "black transcribee_voctoweb/"
 
 [build-system]

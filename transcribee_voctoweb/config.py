@@ -10,5 +10,8 @@ class Settings(BaseSettings):
     transcribee_api_url: str = "https://beta.transcribee.net"
     transcribee_pat: str = "test"
 
+    voc_api_url: str = "https://publishing.c3voc.de/api"
+    voc_token: str = "test"
+
 
 settings = Settings()

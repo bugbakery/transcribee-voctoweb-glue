@@ -15,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 import requests
 from starlette.responses import RedirectResponse
 
-from transcribee_voctoweb.subtitle_formtting import format_subtitle_vtt
+from transcribee_voctoweb.subtitle_formatting import format_subtitle_vtt
 from transcribee_voctoweb.config import settings
 from transcribee_voctoweb.helpers.periodic_tasks import run_periodic
 from transcribee_voctoweb.persistent_data import EventState, PersistentData
@@ -25,6 +25,8 @@ from transcribee_voctoweb.transcribee_api.client import (
 )
 from transcribee_voctoweb.transcribee_api.model import CreateShareToken, TaskResponse, TaskState, TaskTypeModel
 import urllib.parse
+
+from transcribee_voctoweb.voc_api.client import VocPublishingApiClient
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -39,6 +41,12 @@ async def lifespan(app: FastAPI):
     global transcribee_api
     transcribee_api = TranscribeeApiClient(
         base_url=settings.transcribee_api_url, token=settings.transcribee_pat
+    )
+
+    global voc_api
+    voc_api = VocPublishingApiClient(
+        base_url=settings.voc_api_url,
+        token=settings.voc_token,
     )
 
     def continous_save():
@@ -94,9 +102,7 @@ def transcription_finished(tasks: list[TaskResponse]):
 async def update_conference():
     logging.debug("Updating conference...")
     global conference
-    new_conference = requests.get(
-        f"https://api.media.ccc.de/public/conferences/{settings.conference}"
-    ).json()
+    new_conference = await voc_api.get_conference(settings.conference)
     new_conference["events"] = sorted(
         new_conference["events"], key=lambda event: event["date"]
     )
@@ -136,9 +142,7 @@ async def update_conference():
 
 
         if not persistent_data.event_states[guid].transcribee_doc:
-            event_details = requests.get(
-                f"https://api.media.ccc.de/public/events/{guid}"
-            ).json()
+            event_details = await voc_api.get_event(settings.conference, guid)
 
             mp4_recording = next(
                 (
@@ -164,7 +168,7 @@ async def update_conference():
 
                 doc = await transcribee_api.create_document(
                     DocumentBodyWithFile(
-                        name=event["title"],
+                        name=event_details["title"],
                         file=Path(video_file),
                         model="large-v3",
                         language="auto",
@@ -212,7 +216,7 @@ async def home(request: Request):
 
 @app.get("/events/{id}", response_class=HTMLResponse)
 async def event(request: Request, id: str):
-    event = next((event for event in events if event["guid"] == id), None)
+    event = await voc_api.get_event(settings.conference, id)
 
     transcribee_url = None
     state = persistent_data.event_states.get(id)
@@ -261,3 +265,21 @@ async def vtt(request: Request, id: str):
 
     vtt = await transcribee_api.export(state.transcribee_doc, format="VTT", include_word_timing=True)
     return format_subtitle_vtt(vtt)
+
+@app.get("/events/{id}/upload-vtt")
+async def upload_vtt(request: Request, id: str):
+    state = persistent_data.event_states.get(id)
+
+    if state is None or state.transcribee_doc is None:
+        raise HTTPException(status_code=404, detail="No transcribee document created yet")
+
+    vtt = await transcribee_api.export(state.transcribee_doc, format="VTT", include_word_timing=True)
+    formatted_vtt = format_subtitle_vtt(vtt)
+    await voc_api.upload_vtt(
+        conference=settings.conference,
+        event=id,
+        vtt=formatted_vtt,
+        language="de",
+    )
+
+    return "Success"
