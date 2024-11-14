@@ -1,6 +1,6 @@
 import json
-from typing import Any
 import httpx
+from transcribee_voctoweb.voc_api.model import Conference, DetailedEvent
 
 class VocPublishingApiClient:
     def __init__(self, base_url: str, token: str):
@@ -22,7 +22,6 @@ class VocPublishingApiClient:
             **kwargs,
             headers=self._get_headers(),
         )
-
         req.raise_for_status()
         return req
 
@@ -32,7 +31,6 @@ class VocPublishingApiClient:
             **kwargs,
             headers=self._get_headers(),
         )
-
         req.raise_for_status()
         return req
 
@@ -43,22 +41,22 @@ class VocPublishingApiClient:
         req.raise_for_status()
         return req
 
-    async def get_conference(self, conference: str) -> Any:
+    async def get_conference(self, conference: str) -> Conference:
         req = await self._get(
             f"/{conference}"
         )
 
-        return req.json()
+        return Conference.model_validate_json(req.text)
 
-    async def get_event(self, conference: str, event: str) -> Any:
+    async def get_event(self, conference: str, event: str) -> DetailedEvent:
         req = await self._get(
             f"/{conference}/events/{event}"
         )
 
-        return req.json()
+        return DetailedEvent.model_validate_json(req.text)
 
     async def upload_file(self, conference: str, event: str, file_name: str, file_mime_type: str, file_content: httpx._types.FileContent, meta: dict):
-        req = await self._put(
+        await self._put(
             f"/{conference}/events/{event}/file",
             files={
                 'file': (file_name, file_content, file_mime_type),
@@ -66,10 +64,8 @@ class VocPublishingApiClient:
             },
         )
 
-        return req.json()
-
     async def upload_vtt(self, conference: str, event: str, vtt: str, language: str):
-        req = await self.upload_file(
+        await self.upload_file(
             conference,
             event,
             file_content=vtt,
@@ -82,5 +78,3 @@ class VocPublishingApiClient:
                 }
             }
         )
-
-        return req

@@ -103,21 +103,21 @@ async def update_conference():
     logging.debug("Updating conference...")
     global conference
     new_conference = await voc_api.get_conference(settings.conference)
-    new_conference["events"] = sorted(
-        new_conference["events"], key=lambda event: event["date"]
+    new_conference.events = sorted(
+        new_conference.events, key=lambda event: event.date
     )
     if settings.limit_events is not None:
-        new_conference["events"] = new_conference["events"][: settings.limit_events]
+        new_conference.events = new_conference.events[:settings.limit_events]
 
     conference = new_conference
     global events
-    events = conference["events"]
+    events = conference.events
 
 
     global persistent_data
 
     for event in events:
-        guid = event["guid"]
+        guid = event.guid
         if guid not in persistent_data.event_states:
             print(f"Adding event {guid}")
             persistent_data.event_states[guid] = EventState()
@@ -147,9 +147,9 @@ async def update_conference():
             mp4_recording = next(
                 (
                     recording
-                    for recording in event_details["recordings"]
-                    if recording["mime_type"] == "video/mp4"
-                    and recording["high_quality"] is False
+                    for recording in event_details.recordings
+                    if recording.mime_type == "video/mp4"
+                    and recording.high_quality is False
                 ),
                 None,
             )
@@ -158,17 +158,15 @@ async def update_conference():
                 logging.debug(f"Event {guid} has no mp4 recording")
                 continue
 
-            print(mp4_recording["recording_url"])
-
             _fd, video_file = tempfile.mkstemp(suffix=".mp4")
             try:
                 await asyncio.get_running_loop().run_in_executor(
-                    None, download_file, mp4_recording["recording_url"], video_file
+                    None, download_file, mp4_recording.recording_url, video_file
                 )
 
                 doc = await transcribee_api.create_document(
                     DocumentBodyWithFile(
-                        name=event_details["title"],
+                        name=event_details.title,
                         file=Path(video_file),
                         model="large-v3",
                         language="auto",

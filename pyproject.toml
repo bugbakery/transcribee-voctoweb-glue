@@ -16,7 +16,6 @@ dependencies = [
     "jinja2>=3.1.2",
     "requests>=2.31.0",
     "pydantic>=2.5.2",
-    "datamodel-code-generator>=0.25.2",
     "webvtt-py>=0.4.6",
     "httpx>=0.27.2",
 ]
@@ -31,14 +30,20 @@ dev = [
     "httpx>=0.24.0",
     "pytest-alembic>=0.10.4",
     "pyright>=1.1.314",
+    "datamodel-code-generator[http]>=0.25.2",
 ]
+
+[tool.datamodel-codegen]
+output-model-type = "pydantic_v2.BaseModel"
+input-file-type = "openapi"
+
 
 [tool.pdm.scripts]
 start = "uvicorn transcribee_voctoweb.main:app --workers 1"
 dev = "uvicorn transcribee_voctoweb.main:app --workers 1 --port 8001 --reload"
 test = "pytest tests/"
-transcribee_openapi = "datamodel-codegen  --input transcribee-openapi.yaml --input-file-type openapi --output transcribee_voctoweb/transcribee_api/model.py"
-# voc_openapi = "datamodel-codegen  --input transcribee-openapi.yaml --input-file-type openapi --output transcribee_voctoweb/transcribee_api/model.py"
+transcribee_openapi = "datamodel-codegen  --input transcribee-openapi.yaml --output transcribee_voctoweb/transcribee_api/model.py"
+voc_openapi = "datamodel-codegen  --url https://publishing.c3voc.de/openapi.json --output transcribee_voctoweb/voc_api/model.py"
 format = "black transcribee_voctoweb/"
 
 [build-system]

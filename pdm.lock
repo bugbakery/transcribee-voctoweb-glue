@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:b97665ce7bfb9c7ef7b85870de4cef22d219ab4753205254644c8d44930d9033"
+content_hash = "sha256:f9e8e2781f3ec0b0960a92917f0e047bcc6005223ef54277e4b2cd96e1254a49"
 
 [[package]]
 name = "aiohttp"
@@ -274,8 +274,8 @@ files = [
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.25.2"
-requires_python = ">=3.7,<4.0"
+version = "0.26.3"
+requires_python = "<4.0,>=3.8"
 summary = "Datamodel Code Generator"
 dependencies = [
     "argcomplete<4.0,>=1.10",
@@ -292,8 +292,23 @@ dependencies = [
     "toml<1.0.0,>=0.10.0; python_version < \"3.11\"",
 ]
 files = [
-    {file = "datamodel_code_generator-0.25.2-py3-none-any.whl", hash = "sha256:a7e25d438c652e44a5236117b698da2fab307339b43e68c7d959fd3ec55357f2"},
-    {file = "datamodel_code_generator-0.25.2.tar.gz", hash = "sha256:ebe3a66d1838bbc3368f1ee5e779773acb375b0103c833d597e3d7162354d464"},
+    {file = "datamodel_code_generator-0.26.3-py3-none-any.whl", hash = "sha256:f1f8f1cef14f138fa239f987d4640837bb68d53c5f08d8673a7bde275b929fd8"},
+    {file = "datamodel_code_generator-0.26.3.tar.gz", hash = "sha256:b58e0800eb6448e1d1df02f4586207c1e3631c4a188531d154b00b3cf2f95fd8"},
+]
+
+[[package]]
+name = "datamodel-code-generator"
+version = "0.26.3"
+extras = ["http"]
+requires_python = "<4.0,>=3.8"
+summary = "Datamodel Code Generator"
+dependencies = [
+    "datamodel-code-generator==0.26.3",
+    "httpx",
+]
+files = [
+    {file = "datamodel_code_generator-0.26.3-py3-none-any.whl", hash = "sha256:f1f8f1cef14f138fa239f987d4640837bb68d53c5f08d8673a7bde275b929fd8"},
+    {file = "datamodel_code_generator-0.26.3.tar.gz", hash = "sha256:b58e0800eb6448e1d1df02f4586207c1e3631c4a188531d154b00b3cf2f95fd8"},
 ]
 
 [[package]]
