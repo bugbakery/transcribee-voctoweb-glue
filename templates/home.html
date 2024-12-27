@@ -24,9 +24,7 @@
           <a href="/events/{{event.guid}}">{{ event.title }}</a>
         </div>
         <div>
-          <!-- <span class="badge rounded-pill text-bg-primary">Automatic transcription…</span>-->
-          <span class="badge rounded-pill text-bg-warning">Needs transcript correction</span>
-          <!-- <span class="badge rounded-pill text-bg-info">Needs subtitle correction</span> -->
+          <span class="badge rounded-pill text-bg-warning">{{ state[event.guid].state | format_state }}</span>
         </div>
       </li>
     {% endfor %}

@@ -18,19 +18,36 @@
     {% endif %}
 
     <div class="d-flex gap-5 mb-5 space-between">
-      <div class="">
+      <div>
         <img src="{{event.thumb_url}}" class="img-fluid" alt="{{event.title}}">
       </div>
 
       <div>
         <div class="mb-4">
-          <b>Transcript</b><br>
-          Status: Automatic transcription…
+          <b>State</b><br>
+          {{state.state|format_state}}
           <div class="mt-2">
-            <form method="post" action="/events/{{event.guid}}/finish_transcript">
-              <a href="{{transcribee_url}}" class="btn btn-primary">Edit in transcribee</a>
-              <button onClick="confirmAction(event)" class="btn btn-secondary">Finish transcript</button>
+            <div class="mb-2"><a href="{{transcribee_url}}" class="btn btn-primary">Edit in transcribee</a></div>
+            {% if state.state.value == "needs_correction" %}
+            <form method="post" action="/events/{{event.guid}}/mark_corrected">
+              <div class="mb-2"><button onClick="confirmAction(event)" class="btn btn-success">Finish correction</button></div>
             </form>
+            {% endif %}
+            {% if state.state.value == "done" %}
+            <form method="post" action="/events/{{event.guid}}/mark_needs_correction">
+              <div class="mb-2"><button onClick="confirmAction(event)" class="btn btn-warning">Needs correction</button></div>
+            </form>
+            {% endif %}
+            {% if state.state.value == "needs_correction" or state.state.value == "done" %}
+            <form method="post" action="/events/{{event.guid}}/upload_to_voc">
+              <div class="mb-2"><button class="btn btn-warning">(Re)upload to voc</button></div>
+            </form>
+            {% endif %}
+            {% if state.failed %}
+            <form method="post" action="/events/{{event.guid}}/reset_failed">
+              <div class="mb-2"><button class="btn btn-warning">Reset failed state</button></div>
+            </form>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -89,5 +106,15 @@
         </div>
       </div>
     </div>
+
+    <div>
+      <b>Logs</b>
+      <table class="table mt-4">
+        {% for log in state.log %}
+          <tr><td class="w-25">{{log.ts}}</td><td> {{log.msg}}</td></tr>
+        {% endfor %}
+      </div>
+    </div>
+
   </div>
 {% endblock %}

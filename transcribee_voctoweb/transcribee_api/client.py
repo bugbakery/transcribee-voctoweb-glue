@@ -1,7 +1,8 @@
-from typing import Any, Literal
+from tempfile import _TemporaryFileWrapper
+from typing import IO, Any, Literal
 import httpx
+from pydantic.fields import Field
 from pydantic.type_adapter import TypeAdapter
-from pydantic.types import FilePath
 from transcribee_voctoweb.transcribee_api.model import (
     BodyCreateDocumentApiV1DocumentsPost,
     CreateShareToken,
@@ -12,7 +13,11 @@ from transcribee_voctoweb.transcribee_api.model import (
 
 
 class DocumentBodyWithFile(BodyCreateDocumentApiV1DocumentsPost):
-    file: FilePath
+    file: IO[bytes] | _TemporaryFileWrapper = Field(..., exclude=True)
+
+    model_config = {
+        'arbitrary_types_allowed': True
+    }
 
 file_entry_type = tuple[
     str, tuple[str | None, Any] | tuple[str | None, Any, str]
@@ -59,16 +64,13 @@ class TranscribeeApiClient:
         doc_dict = document.model_dump()
         data = {key: value for key, value in doc_dict.items() if key != "file"}
 
-        with open(document.file, "rb") as file:
-            files: list[file_entry_type] = [
-                ("file", ("video.mp4", file, "video/mp4")),
-            ]
+        # with open(document.file, "rb") as file:
+        files: list[file_entry_type] = [
+            ("file", ("video.mp4", document.file, "video/mp4")),
+        ]
 
-            for key, value in data.items():
-                files.append((key, (None, value)))
-
-            req = await self._post("/api/v1/documents/", files=tuple(files))
-            return Document.model_validate_json(req.text)
+        req = await self._post("/api/v1/documents/", data=data, files=tuple(files))
+        return Document.model_validate_json(req.text)
 
     async def create_share_token(self, doc_id: str, data: CreateShareToken):
         data_dict = data.model_dump()
