@@ -252,7 +252,7 @@ async def update_conference():
 
 
 async def download_file(url, file: IO[bytes]):
-    async with httpx.AsyncClient().stream('GET', url, follow_redirects=True) as res:
+    async with httpx.AsyncClient(timeout=10.0).stream('GET', url, follow_redirects=True) as res:
         res.raise_for_status()
         async for chunk in res.aiter_bytes():
             file.write(chunk)

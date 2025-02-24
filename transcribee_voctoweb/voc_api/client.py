@@ -5,7 +5,7 @@ from transcribee_voctoweb.voc_api.model import Conference, DetailedEvent
 class VocPublishingApiClient:
     def __init__(self, base_url: str, token: str):
         self._base_url = base_url
-        self._client = httpx.AsyncClient()
+        self._client = httpx.AsyncClient(timeout=10.0)
         self._token = token
 
     def _get_headers(self):
