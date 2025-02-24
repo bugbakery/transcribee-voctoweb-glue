@@ -24,7 +24,7 @@
           <a href="/events/{{event.guid}}">{{ event.title }}</a>
         </div>
         <div>
-          <span class="badge rounded-pill text-bg-warning">{{ state[event.guid].state | format_state }}</span>
+          <span class="badge rounded-pill {% if state[event.guid].state.value == "done" %}text-bg-success{% else %}text-bg-warning{% endif %}">{{ state[event.guid].state | format_state }}</span>
         </div>
       </li>
     {% endfor %}
