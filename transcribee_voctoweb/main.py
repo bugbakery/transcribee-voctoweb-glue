@@ -336,11 +336,12 @@ async def vtt(request: Request, id: str):
 
 
 async def export_transcribee_document_to_voc(event_id: str, transcribee_doc: str):
+    event = await voc_api.get_event(settings.conference, event_id)
     vtt = await transcribee_api.export(transcribee_doc, format="VTT", include_word_timing=True)
     formatted_vtt = format_subtitle_vtt(vtt)
     await voc_api.upload_vtt(
         conference=settings.conference,
         event=event_id,
         vtt=formatted_vtt,
-        language="de",
+        language=event.original_language,
     )
