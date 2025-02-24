@@ -62,9 +62,8 @@ class TranscribeeApiClient:
 
     async def create_document(self, document: DocumentBodyWithFile) -> Document:
         doc_dict = document.model_dump()
-        data = {key: value for key, value in doc_dict.items() if key != "file"}
+        data = {key: value for key, value in doc_dict.items() if key != "file" and value is not None}
 
-        # with open(document.file, "rb") as file:
         files: list[file_entry_type] = [
             ("file", ("video.mp4", document.file, "video/mp4")),
         ]
