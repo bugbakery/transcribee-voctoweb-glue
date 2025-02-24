@@ -4,6 +4,7 @@ import datetime
 import logging
 from pathlib import Path
 import tempfile
+import traceback
 from typing import IO
 
 from fastapi import FastAPI, Request
@@ -115,7 +116,7 @@ async def wrapped_process(event_id: str, event_state: EventState):
         event_state.add_log("Recoverable dependency error")
     except Exception as e:
         logging.error("Unknown error", exc_info=e)
-        event_state.add_log(f"Unknown error: {str(e)}")
+        event_state.add_log(f"Unknown error: {traceback.format_exc()}")
         event_state.try_count += 1
         if event_state.try_count >= 3:
             logging.error("Failed after 3 tries")
@@ -139,7 +140,7 @@ async def process(event_id: str, event_state: EventState):
         if mp4_recording is None:
             raise RecoverableDependencyError(event_state, "Event has no mp4 recording")
 
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as video_file:
+        with tempfile.NamedTemporaryFile() as video_file:
             logging.debug(f"Downloading {mp4_recording.recording_url}")
             await download_file(mp4_recording.recording_url, video_file)
             video_file.flush()
@@ -175,11 +176,7 @@ async def process(event_id: str, event_state: EventState):
         tasks = await transcribee_api.get_tasks_for_document(event_state.transcribee_doc)
 
         if transcription_finished(tasks):
-            try:
-                await export_transcribee_document_to_voc(event_id, event_state.transcribee_doc)
-            except HTTPException:
-                logging.error("Failed to export transcribee document to voc")
-                event_state.add_log("Failed to export transcribee document to voc")
+            await export_transcribee_document_to_voc(event_id, event_state.transcribee_doc)
 
             event_state.switch_state(State.NEEDS_CORRECTION)
             logging.info(f"{event_id} just finished automatic transcription")
@@ -200,10 +197,12 @@ async def process(event_id: str, event_state: EventState):
 
 
 def transcription_finished(tasks: list[TaskResponse]):
+    transcribe_tasks = [task for task in tasks if task.task_type == TaskTypeModel.TRANSCRIBE]
+
     # has at leas one finished automatic transcription
     has_completed_transcribe_task = any(
-        task.task_type == TaskTypeModel.TRANSCRIBE and task.state == TaskState.COMPLETED
-        for task in tasks
+        task.state == TaskState.COMPLETED
+        for task in transcribe_tasks
     )
 
     if not has_completed_transcribe_task:
